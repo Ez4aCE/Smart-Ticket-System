@@ -14,3 +14,4 @@ mcp
 aiosmtplib==3.0.1
 email-validator==2.2.0
 annotated-types
+bcrypt==3.2.2

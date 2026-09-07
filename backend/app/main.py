@@ -4,6 +4,7 @@ from fastapi.middleware.cors import CORSMiddleware
 
 from .database.session import init_db
 from .api.v1 import auth, tickets, departments, staff, routing_rules, dashboard
+from .api.v1 import ai as ai_router
 
 app = FastAPI(
     title="NexSolve Smart Ticket System",
@@ -39,7 +40,7 @@ app.include_router(departments.router, prefix="/api/v1/departments", tags=["Depa
 app.include_router(staff.router, prefix="/api/v1/staff", tags=["Staff"])
 app.include_router(routing_rules.router, prefix="/api/v1/routing-rules", tags=["Routing Rules"])
 app.include_router(dashboard.router, prefix="/api/v1/dashboard", tags=["Dashboard"])
-
+app.include_router(ai_router.router, prefix="/api/v1/ai", tags=["AI"])
 
 @app.get("/health")
 def health():

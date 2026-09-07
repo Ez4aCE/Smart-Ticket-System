@@ -1,0 +1,129 @@
+text,category,priority
+"My fee payment is not showing in the portal",Fees,HIGH
+"I paid tuition but my portal still says unpaid",Fees,HIGH
+"Semester fee transaction is missing",Fees,HIGH
+"Fee receipt not generated after payment",Fees,HIGH
+"Online payment done but fees still showing as due",Fees,HIGH
+"Fee payment confirmation not received",Fees,HIGH
+"I completed my semester fee payment but status shows pending",Fees,HIGH
+"Payment was deducted but portal not updated",Fees,HIGH
+"I cannot see my fee payment in student dashboard",Fees,HIGH
+"Challan submitted but fee not reflected",Fees,HIGH
+"My tuition fee payment shows failed but amount was debited",Fees,HIGH
+"Fee payment error occurred during transaction",Fees,HIGH
+"Student portal shows balance due despite payment",Fees,HIGH
+"Fee deposit done at bank but not updated online",Fees,HIGH
+"I paid fees through net banking but status not changed",Fees,HIGH
+"Fee payment made two days ago but not updated",Fees,HIGH
+"My hall ticket is unavailable for download",Examination,HIGH
+"I cannot download my exam hall ticket",Examination,HIGH
+"Exam admit card is missing from student portal",Examination,HIGH
+"Hall ticket not generated for upcoming exam",Examination,HIGH
+"Unable to access exam admit card",Examination,HIGH
+"My examination roll number is not assigned",Examination,HIGH
+"Exam schedule not visible in my account",Examination,HIGH
+"I need my hall ticket urgently for tomorrow exam",Examination,HIGH
+"Admit card link is broken on student portal",Examination,HIGH
+"Exam seating arrangement not communicated",Examination,HIGH
+"I was marked absent but I attended the exam",Examination,HIGH
+"My exam results have not been published",Examination,HIGH
+"Grade correction needed for last semester",Examination,HIGH
+"Exam form not submitted due to portal error",Examination,HIGH
+"Internal marks not uploaded by professor",Examination,HIGH
+"Back paper form submission is not working",Examination,HIGH
+"The fan in my hostel room is not working",Hostel,MEDIUM
+"My hostel room needs maintenance",Hostel,MEDIUM
+"There is a plumbing problem in my room",Hostel,MEDIUM
+"Hostel room window is broken and needs repair",Hostel,MEDIUM
+"Water supply is disrupted in my hostel block",Hostel,MEDIUM
+"Electrical issue in hostel room",Hostel,MEDIUM
+"Hostel mess food quality is poor",Hostel,MEDIUM
+"Hostel room door lock is not working",Hostel,MEDIUM
+"There is no hot water in hostel bathrooms",Hostel,MEDIUM
+"Hostel wifi is not working in my room",Hostel,MEDIUM
+"Cockroach and pest problem in hostel",Hostel,MEDIUM
+"Hostel room allocated is different from applied",Hostel,MEDIUM
+"My hostel room mate complaint",Hostel,MEDIUM
+"Hostel security issue at night",Hostel,MEDIUM
+"Power outage in hostel block regularly",Hostel,MEDIUM
+"I need a room change in hostel",Hostel,MEDIUM
+"I cannot register for the placement drive",Placement,MEDIUM
+"Placement registration is failing",Placement,MEDIUM
+"The placement portal won't let me register",Placement,MEDIUM
+"Unable to upload resume on placement portal",Placement,MEDIUM
+"Company registration form not working",Placement,MEDIUM
+"Placement eligibility criteria not clear",Placement,MEDIUM
+"My placement profile is incomplete",Placement,MEDIUM
+"Interview schedule not visible in my account",Placement,MEDIUM
+"I was not notified about the placement drive",Placement,MEDIUM
+"Placement test link is not working",Placement,MEDIUM
+"I need no objection certificate for off-campus placement",Placement,MEDIUM
+"Placement cell not responding to my application",Placement,MEDIUM
+"My placement drive registration was deleted",Placement,MEDIUM
+"Cannot update CGPA on placement portal",Placement,MEDIUM
+"Offer letter not received after campus placement",Placement,MEDIUM
+"Placement drive attendance not marked",Placement,MEDIUM
+"Am I eligible for the scholarship?",Scholarship,LOW
+"What are the scholarship eligibility requirements?",Scholarship,LOW
+"I need clarification about scholarship eligibility",Scholarship,LOW
+"How do I apply for merit scholarship?",Scholarship,LOW
+"Scholarship application form not available",Scholarship,LOW
+"Scholarship renewal process is not clear",Scholarship,LOW
+"My scholarship application status is pending",Scholarship,LOW
+"Documents required for scholarship submission",Scholarship,LOW
+"Scholarship amount not credited this semester",Scholarship,LOW
+"I want to know about government scholarship schemes",Scholarship,LOW
+"Scholarship disbursement is delayed",Scholarship,LOW
+"My scholarship was rejected and I want to appeal",Scholarship,LOW
+"Income certificate for scholarship verification",Scholarship,LOW
+"Scholarship portal login not working",Scholarship,LOW
+"Scholarship eligibility check for minority students",Scholarship,LOW
+"I need scholarship application receipt",Scholarship,LOW
+"Wi-Fi is not working in the computer lab",IT / Network,MEDIUM
+"Campus internet is disconnected",IT / Network,MEDIUM
+"I cannot connect to college Wi-Fi",IT / Network,MEDIUM
+"Internet speed is very slow in library",IT / Network,MEDIUM
+"College email account is not working",IT / Network,MEDIUM
+"I forgot my student portal password",IT / Network,MEDIUM
+"Library computer systems are not booting",IT / Network,MEDIUM
+"College intranet portal is down",IT / Network,MEDIUM
+"My student ID card is not working for lab access",IT / Network,MEDIUM
+"IT lab printers are not working",IT / Network,MEDIUM
+"VPN access needed for college resources",IT / Network,MEDIUM
+"Cannot access college learning management system",IT / Network,MEDIUM
+"Student email password reset not working",IT / Network,MEDIUM
+"College WiFi disconnects repeatedly in classroom",IT / Network,MEDIUM
+"Online exam platform not loading properly",IT / Network,MEDIUM
+"Student portal login is broken",IT / Network,MEDIUM
+"What is the status of my admission application?",Admission,LOW
+"My application status has not changed",Admission,LOW
+"I want to check my admission application",Admission,LOW
+"Admission counseling schedule not received",Admission,LOW
+"Documents uploaded for admission not verified",Admission,LOW
+"I need admission confirmation letter",Admission,LOW
+"Admission process steps are not clear",Admission,LOW
+"My admission form was rejected without reason",Admission,LOW
+"Lateral entry admission process query",Admission,LOW
+"Transfer admission from another university",Admission,LOW
+"Admission fee refund process",Admission,LOW
+"Merit list for admission not published",Admission,LOW
+"I need to change my course after admission",Admission,LOW
+"Admission portal document upload failing",Admission,LOW
+"I need duplicate admission letter",Admission,LOW
+"Gap certificate submission for admission",Admission,LOW
+"My bus pass has not been issued yet",Transport,LOW
+"I am waiting for my transport pass",Transport,LOW
+"My college bus pass is pending",Transport,LOW
+"Bus route information not available",Transport,LOW
+"I want to apply for college bus service",Transport,LOW
+"Bus timing schedule not updated",Transport,LOW
+"I lost my bus pass and need replacement",Transport,LOW
+"Bus route changed without notification",Transport,LOW
+"Bus driver complaint",Transport,LOW
+"Transport fee structure not clear",Transport,LOW
+"Bus not arriving at my stop regularly",Transport,LOW
+"I want to cancel my bus pass subscription",Transport,LOW
+"Bus pass renewal process",Transport,LOW
+"New bus stop addition request",Transport,LOW
+"Transport service not available for my area",Transport,LOW
+"College bus is always late",Transport,LOW
