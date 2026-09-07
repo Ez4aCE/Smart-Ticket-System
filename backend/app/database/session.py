@@ -1,9 +1,8 @@
 import os
 from sqlalchemy import create_engine
-from sqlalchemy.orm import sessionmaker
+from sqlalchemy.orm import sessionmaker, Session
+from typing import Generator
 
-# For production set DATABASE_URL=postgresql+psycopg2://user:pass@host/db
-# Falls back to in-process SQLite for local dev / tests.
 SQLALCHEMY_DATABASE_URL = os.environ.get(
     "DATABASE_URL", "sqlite:///./smart_tickets.db"
 )
@@ -13,12 +12,14 @@ connect_args = {"check_same_thread": False} if SQLALCHEMY_DATABASE_URL.startswit
 engine = create_engine(SQLALCHEMY_DATABASE_URL, connect_args=connect_args)
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 
-def init_db():
-    """Create all tables. Called at app startup or in tests."""
+
+def init_db() -> None:
+    """Create all tables. Idempotent — safe to call multiple times."""
     from .models import Base
     Base.metadata.create_all(bind=engine)
 
-def get_db():
+
+def get_db() -> Generator[Session, None, None]:
     db = SessionLocal()
     try:
         yield db
