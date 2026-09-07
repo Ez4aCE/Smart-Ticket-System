@@ -12,7 +12,7 @@ from .schemas import TicketPrediction, VALID_CATEGORIES, VALID_DEPARTMENTS, VALI
 logger = logging.getLogger(__name__)
 
 LLM_API_KEY = os.environ.get("LLM_API_KEY", "")
-LLM_MODEL = os.environ.get("LLM_MODEL", "gemini-1.5-flash")
+LLM_MODEL = os.environ.get("LLM_MODEL", "gemini-3.5-flash")
 LLM_TIMEOUT = int(os.environ.get("LLM_TIMEOUT", "10"))
 AI_PROVIDER = os.environ.get("AI_PROVIDER", "gemini")
 
