@@ -1,104 +1,108 @@
-import { useState } from 'preact/hooks'
-import heroImg from './assets/hero.png'
-import preactLogo from './assets/preact.svg'
-import viteLogo from './assets/vite.svg'
-import './app.css'
+import { Routes, Route, Navigate } from "react-router-dom";
 
-export function App() {
-  const [count, setCount] = useState(0)
+import Login from "./pages/Login";
 
+// Student
+import StudentDashboard from "./pages/student/Dashboard";
+import CreateTicket from "./pages/student/CreateTicket";
+import MyTickets from "./pages/student/MyTickets";
+import StudentTicketDetails from "./pages/student/TicketDetails";
+
+// Staff
+import StaffDashboard from "./pages/staff/Dashboard";
+import StaffTickets from "./pages/staff/Tickets";
+import StaffTicketDetails from "./pages/staff/TicketDetails";
+
+// Admin
+import AdminDashboard from "./pages/admin/Dashboard";
+import Departments from "./pages/admin/Departments";
+import Staff from "./pages/admin/Staff";
+import ManualTriage from "./pages/admin/ManualTriage";
+
+function App() {
   return (
-    <>
-      <section id="center">
-        <div class="hero">
-          <img src={heroImg} class="base" width="170" height="179" alt="" />
-          <img src={preactLogo} class="framework" alt="Preact logo" />
-          <img src={viteLogo} class="vite" alt="Vite logo" />
-        </div>
-        <div>
-          <h1>Get started</h1>
-          <p>
-            Edit <code>src/app.jsx</code> and save to test <code>HMR</code>
-          </p>
-        </div>
-        <button
-          type="button"
-          class="counter"
-          onClick={() => setCount((count) => count + 1)}
-        >
-          Count is {count}
-        </button>
-      </section>
+    <Routes>
 
-      <div class="ticks"></div>
+      {/* Login */}
+      <Route path="/login" element={<Login />} />
 
-      <section id="next-steps">
-        <div id="docs">
-          <svg class="icon" role="presentation" aria-hidden="true">
-            <use href="/icons.svg#documentation-icon"></use>
-          </svg>
-          <h2>Documentation</h2>
-          <p>Your questions, answered</p>
-          <ul>
-            <li>
-              <a href="https://vite.dev/" target="_blank">
-                <img class="logo" src={viteLogo} alt="" />
-                Explore Vite
-              </a>
-            </li>
-            <li>
-              <a href="https://preactjs.com/" target="_blank">
-                <img class="button-icon" src={preactLogo} alt="" />
-                Learn more
-              </a>
-            </li>
-          </ul>
-        </div>
-        <div id="social">
-          <svg class="icon" role="presentation" aria-hidden="true">
-            <use href="/icons.svg#social-icon"></use>
-          </svg>
-          <h2>Connect with us</h2>
-          <p>Join the Vite community</p>
-          <ul>
-            <li>
-              <a href="https://github.com/vitejs/vite" target="_blank">
-                <svg class="button-icon" role="presentation" aria-hidden="true">
-                  <use href="/icons.svg#github-icon"></use>
-                </svg>
-                GitHub
-              </a>
-            </li>
-            <li>
-              <a href="https://chat.vite.dev/" target="_blank">
-                <svg class="button-icon" role="presentation" aria-hidden="true">
-                  <use href="/icons.svg#discord-icon"></use>
-                </svg>
-                Discord
-              </a>
-            </li>
-            <li>
-              <a href="https://x.com/vite_js" target="_blank">
-                <svg class="button-icon" role="presentation" aria-hidden="true">
-                  <use href="/icons.svg#x-icon"></use>
-                </svg>
-                X.com
-              </a>
-            </li>
-            <li>
-              <a href="https://bsky.app/profile/vite.dev" target="_blank">
-                <svg class="button-icon" role="presentation" aria-hidden="true">
-                  <use href="/icons.svg#bluesky-icon"></use>
-                </svg>
-                Bluesky
-              </a>
-            </li>
-          </ul>
-        </div>
-      </section>
+      {/* Student */}
+      <Route
+        path="/student/dashboard"
+        element={<StudentDashboard />}
+      />
 
-      <div class="ticks"></div>
-      <section id="spacer"></section>
-    </>
-  )
+      <Route
+        path="/student/create-ticket"
+        element={<CreateTicket />}
+      />
+
+      <Route
+        path="/student/tickets"
+        element={<MyTickets />}
+      />
+
+      <Route
+        path="/student/tickets/:id"
+        element={<StudentTicketDetails />}
+      />
+
+      {/* Staff */}
+      <Route
+        path="/staff/dashboard"
+        element={<StaffDashboard />}
+      />
+
+      <Route
+        path="/staff/tickets"
+        element={<StaffTickets />}
+      />
+
+      <Route
+        path="/staff/tickets/:id"
+        element={<StaffTicketDetails />}
+      />
+
+      {/* Admin */}
+      <Route
+        path="/admin/dashboard"
+        element={<AdminDashboard />}
+      />
+
+      <Route
+        path="/admin/departments"
+        element={<Departments />}
+      />
+
+      <Route
+        path="/admin/staff"
+        element={<Staff />}
+      />
+
+      <Route
+        path="/admin/triage"
+        element={<ManualTriage />}
+      />
+
+      {/* Default */}
+      <Route
+        path="/"
+        element={<Navigate to="/login" replace />}
+      />
+
+      {/* 404 */}
+      <Route
+        path="*"
+        element={
+          <div className="container mt-5 text-center">
+            <h2>404</h2>
+            <p>Page not found</p>
+          </div>
+        }
+      />
+
+    </Routes>
+  );
 }
+
+export default App;
