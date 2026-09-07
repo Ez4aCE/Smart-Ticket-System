@@ -42,6 +42,7 @@ services:
         condition: service_healthy
     volumes:
       - ./backend:/app
+      - ./ml:/app/ml
       - uploads_data:/app/uploads
     command: uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload
 
