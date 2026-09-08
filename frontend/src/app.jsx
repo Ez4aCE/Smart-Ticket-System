@@ -15,6 +15,7 @@ import StaffTicketDetails from "./pages/staff/TicketDetails";
 
 // Admin
 import AdminDashboard from "./pages/admin/Dashboard";
+import AdminTickets from "./pages/admin/Tickets";
 import Departments from "./pages/admin/Departments";
 import Staff from "./pages/admin/Staff";
 import ManualTriage from "./pages/admin/ManualTriage";
@@ -67,6 +68,12 @@ function App() {
       <Route
         path="/admin/dashboard"
         element={<AdminDashboard />}
+      />
+
+      <Route path="/admin/tickets" element={<AdminTickets />} />
+      <Route
+        path="/admin/tickets/:id"
+        element={<StaffTicketDetails role="admin" />}
       />
 
       <Route

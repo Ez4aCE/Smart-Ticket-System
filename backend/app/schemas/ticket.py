@@ -9,6 +9,14 @@ class TicketCreate(BaseModel):
     description: str
 
 
+class TicketUpdate(BaseModel):
+    title: Optional[str] = None
+    description: Optional[str] = None
+    priority: Optional[str] = None
+    status: Optional[str] = None
+    category: Optional[str] = None
+    department: Optional[str] = None
+
 class TicketStatusUpdate(BaseModel):
     status: str
     reason: Optional[str] = None
@@ -83,3 +91,4 @@ class TicketDetailResponse(TicketResponse):
     comments: List[CommentResponse] = []
     status_history: List[StatusHistoryResponse] = []
     current_assignment: Optional[AssignmentResponse] = None
+

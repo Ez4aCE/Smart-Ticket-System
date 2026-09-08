@@ -1,24 +1,37 @@
 import { useNavigate } from "react-router-dom";
 
-function Navbar({ role = "student" }) {
+function Navbar({ role }) {
   const navigate = useNavigate();
+
+  // Get the real user from localStorage
+  const storedUser = (() => {
+    try { return JSON.parse(localStorage.getItem("user")); } catch { return null; }
+  })();
+
+  const actualRole = role || storedUser?.role?.toLowerCase() || "student";
 
   const roleInfo = {
     student: {
-      name: "Student",
+      name: storedUser?.full_name || "Student",
       avatar: "S",
     },
     staff: {
-      name: "Staff",
+      name: storedUser?.full_name || "Staff",
       avatar: "P",
     },
     admin: {
-      name: "Administrator",
+      name: storedUser?.full_name || "Administrator",
       avatar: "A",
     },
   };
 
-  const currentRole = roleInfo[role] || roleInfo.student;
+  const currentRole = roleInfo[actualRole] || roleInfo.student;
+
+  const handleLogout = () => {
+    localStorage.removeItem("token");
+    localStorage.removeItem("user");
+    navigate("/login");
+  };
 
   return (
     <nav className="top-navbar">
@@ -63,7 +76,7 @@ function Navbar({ role = "student" }) {
 
         <button
           className="logout-btn"
-          onClick={() => navigate("/login")}
+          onClick={handleLogout}
         >
           ⇥
           <span>

@@ -6,9 +6,10 @@ from typing import List
 from ...database.session import get_db
 from ...database.models import StaffProfile, User
 from ...core.dependencies import require_admin, require_staff, get_current_user
-from ...schemas.staff import StaffResponse, CapacityUpdate, AvailabilityUpdate
+from ...schemas.staff import StaffResponse, CapacityUpdate, AvailabilityUpdate, StaffCreate
 from ...schemas.ticket import TicketResponse
 from ...services import ticket_service
+from ...core.security import hash_password
 
 router = APIRouter()
 
@@ -27,6 +28,32 @@ def _staff_to_dict(s: StaffProfile) -> dict:
 @router.get("", response_model=List[StaffResponse])
 def list_staff(db: Session = Depends(get_db), _ = Depends(require_admin)):
     return [_staff_to_dict(s) for s in db.query(StaffProfile).all()]
+
+
+@router.post("", response_model=StaffResponse, status_code=201)
+def create_staff(body: StaffCreate, db: Session = Depends(get_db), _ = Depends(require_admin)):
+    existing = db.query(User).filter(User.email == body.email).first()
+    if existing:
+        raise HTTPException(status_code=409, detail="User with this email already exists")
+    
+    user = User(
+        email=body.email,
+        full_name=body.full_name,
+        role="STAFF",
+        password_hash=hash_password(body.password)
+    )
+    db.add(user)
+    db.flush()
+    
+    profile = StaffProfile(
+        user_id=user.id,
+        department_id=body.department_id,
+        employee_code=body.employee_code
+    )
+    db.add(profile)
+    db.commit()
+    db.refresh(profile)
+    return _staff_to_dict(profile)
 
 
 @router.get("/me/tickets", response_model=List[TicketResponse])

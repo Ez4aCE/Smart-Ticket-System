@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { login } from "../services/api";
 import "./Login.css";
 
 function Login() {
@@ -10,7 +11,8 @@ function Login() {
     password: "",
     role: "student",
   });
-
+  
+  const [error, setError] = useState("");
   const [showPassword, setShowPassword] = useState(false);
 
   const handleChange = (e) => {
@@ -20,22 +22,33 @@ function Login() {
     });
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-
-    /*
-      UI DEMO ONLY
-
-      No backend/token is required right now.
-      Later this will call your login API.
-    */
-
-    if (form.role === "student") {
-      navigate("/student/dashboard");
-    } else if (form.role === "staff") {
-      navigate("/staff/dashboard");
-    } else {
-      navigate("/admin/dashboard");
+    setError("");
+    
+    try {
+      const payload = {
+        email: form.email,
+        password: form.password
+      };
+      
+      const response = await login(payload);
+      localStorage.setItem("token", response.access_token);
+      localStorage.setItem("user", JSON.stringify(response.user));
+      
+      // Route based on the ACTUAL role from the backend, not the dropdown
+      const role = response.user.role.toUpperCase();
+      if (role === "STUDENT") {
+        navigate("/student/dashboard");
+      } else if (role === "STAFF") {
+        navigate("/staff/dashboard");
+      } else if (role === "ADMIN") {
+        navigate("/admin/dashboard");
+      }
+    } catch (err) {
+      console.error(err);
+      const detail = err.response?.data?.detail || "Login failed. Check your credentials.";
+      setError(detail);
     }
   };
 
@@ -161,6 +174,12 @@ function Login() {
             <p>
               Sign in to access your support portal
             </p>
+
+            {error && (
+              <div className="alert alert-danger py-2 mt-2 mb-0" style={{fontSize: '0.85rem'}}>
+                {error}
+              </div>
+            )}
 
           </div>
 

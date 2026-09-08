@@ -1,385 +1,100 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Navbar from "../../components/Navbar";
 import Sidebar from "../../components/Sidebar";
-import "./Departments.css";
+import { getDepartments, createDepartment } from "../../services/api";
 
 function Departments() {
-  const [departments, setDepartments] = useState([
-    {
-      name: "Finance",
-      description: "Fees, payments and refunds",
-      icon: "💰",
-      tickets: 185,
-      staff: 6,
-    },
-    {
-      name: "Examination",
-      description: "Exams, hall tickets and results",
-      icon: "📝",
-      tickets: 124,
-      staff: 5,
-    },
-    {
-      name: "Hostel",
-      description: "Rooms, maintenance and facilities",
-      icon: "🏠",
-      tickets: 98,
-      staff: 5,
-    },
-    {
-      name: "Placement",
-      description: "Placement drives and registrations",
-      icon: "💼",
-      tickets: 86,
-      staff: 4,
-    },
-    {
-      name: "Scholarship",
-      description: "Scholarship applications and queries",
-      icon: "🎓",
-      tickets: 72,
-      staff: 3,
-    },
-    {
-      name: "IT Support",
-      description: "Network, Wi-Fi and technical issues",
-      icon: "💻",
-      tickets: 76,
-      staff: 4,
-    },
-    {
-      name: "Admission",
-      description: "Applications and admission queries",
-      icon: "📋",
-      tickets: 64,
-      staff: 4,
-    },
-    {
-      name: "Transport",
-      description: "Bus passes and transportation",
-      icon: "🚌",
-      tickets: 45,
-      staff: 3,
-    },
-  ]);
+  const [departments, setDepartments] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
+  const [showAdd, setShowAdd] = useState(false);
+  const [newDept, setNewDept] = useState({ name: "", code: "", description: "" });
 
-  const [showModal, setShowModal] = useState(false);
-  const [newDepartment, setNewDepartment] = useState("");
-
-  const handleAddDepartment = (e) => {
-    e.preventDefault();
-
-    if (!newDepartment.trim()) {
-      return;
+  const fetchDepartments = async () => {
+    try {
+      const data = await getDepartments();
+      setDepartments(data);
+    } catch (err) {
+      console.error(err);
+      setError("Unable to load department data.");
+    } finally {
+      setLoading(false);
     }
+  };
 
-    const department = {
-      name: newDepartment.trim(),
-      description: "New college support department",
-      icon: "🏢",
-      tickets: 0,
-      staff: 0,
-    };
+  useEffect(() => {
+    fetchDepartments();
+  }, []);
 
-    setDepartments([...departments, department]);
-
-    setNewDepartment("");
-    setShowModal(false);
+  const handleAdd = async (e) => {
+    e.preventDefault();
+    try {
+      await createDepartment(newDept);
+      setNewDept({ name: "", code: "", description: "" });
+      setShowAdd(false);
+      fetchDepartments();
+    } catch (err) {
+      alert(err.response?.data?.detail || "Failed to add department.");
+    }
   };
 
   return (
     <>
       <Navbar role="admin" />
-
       <div className="dashboard-layout">
-
         <Sidebar role="admin" />
-
         <main className="content">
-
-          {/* ================================
-              HEADER
-          ================================= */}
-
-          <div className="departments-header">
-
+          <div className="d-flex justify-content-between align-items-center mb-4">
             <div>
-              <p className="page-label">
-                ADMINISTRATION
-              </p>
-
-              <h1>
-                Departments
-              </h1>
-
-              <p>
-                Manage college departments responsible for student support.
-              </p>
+              <p className="page-label text-muted small text-uppercase mb-1">ADMINISTRATION</p>
+              <h2>Departments</h2>
             </div>
-
-            <button
-              className="add-department-btn"
-              onClick={() => setShowModal(true)}
-            >
-              <span>+</span>
-              Add Department
+            <button className="btn btn-primary" onClick={() => setShowAdd(!showAdd)}>
+              {showAdd ? "Cancel" : "+ Add Department"}
             </button>
-
           </div>
 
-
-          {/* ================================
-              SUMMARY
-          ================================= */}
-
-          <div className="department-summary">
-
-            <div className="summary-item">
-
-              <div className="summary-icon">
-                🏢
-              </div>
-
-              <div>
-                <span>Total Departments</span>
-                <strong>{departments.length}</strong>
-              </div>
-
-            </div>
-
-
-            <div className="summary-item">
-
-              <div className="summary-icon">
-                🎫
-              </div>
-
-              <div>
-                <span>Total Active Tickets</span>
-                <strong>750</strong>
-              </div>
-
-            </div>
-
-
-            <div className="summary-item">
-
-              <div className="summary-icon">
-                👥
-              </div>
-
-              <div>
-                <span>Total Staff</span>
-                <strong>34</strong>
-              </div>
-
-            </div>
-
-          </div>
-
-
-          {/* ================================
-              DEPARTMENT GRID
-          ================================= */}
-
-          <div className="departments-section">
-
-            <div className="section-title">
-
-              <div>
-                <h3>
-                  All Departments
-                </h3>
-
-                <p>
-                  Departments available for AI ticket routing
-                </p>
-              </div>
-
-              <span>
-                {departments.length} Departments
-              </span>
-
-            </div>
-
-
-            <div className="department-grid">
-
-              {departments.map((department) => (
-
-                <div
-                  className="department-card"
-                  key={department.name}
-                >
-
-                  {/* Top */}
-
-                  <div className="department-card-top">
-
-                    <div className="department-icon">
-                      {department.icon}
-                    </div>
-
-                    <div className="department-ticket-count">
-                      {department.tickets} tickets
-                    </div>
-
+          {showAdd && (
+            <div className="card shadow-sm mb-4">
+              <div className="card-body">
+                <form onSubmit={handleAdd} className="row g-3">
+                  <div className="col-md-4">
+                    <input type="text" className="form-control" placeholder="Dept Name" value={newDept.name} onChange={e => setNewDept({...newDept, name: e.target.value})} required />
                   </div>
-
-
-                  {/* Content */}
-
-                  <div className="department-card-content">
-
-                    <h4>
-                      {department.name}
-                    </h4>
-
-                    <p>
-                      {department.description}
-                    </p>
-
+                  <div className="col-md-3">
+                    <input type="text" className="form-control" placeholder="Code (e.g. FIN)" value={newDept.code} onChange={e => setNewDept({...newDept, code: e.target.value})} required />
                   </div>
-
-
-                  {/* Footer */}
-
-                  <div className="department-card-footer">
-
-                    <div className="staff-count">
-                      👤 {department.staff} Staff
-                    </div>
-
-                    <button>
-                      Manage →
-                    </button>
-
+                  <div className="col-md-4">
+                    <input type="text" className="form-control" placeholder="Description" value={newDept.description} onChange={e => setNewDept({...newDept, description: e.target.value})} />
                   </div>
-
-                </div>
-
-              ))}
-
-            </div>
-
-          </div>
-
-
-          {/* ================================
-              AI ROUTING INFO
-          ================================= */}
-
-          <div className="department-info">
-
-            <div className="department-info-icon">
-              🤖
-            </div>
-
-            <div>
-
-              <strong>
-                AI Department Routing
-              </strong>
-
-              <p>
-                The AI analyzes student requests and automatically
-                identifies the most suitable department based on
-                the issue category.
-              </p>
-
-            </div>
-
-          </div>
-
-
-          {/* ================================
-              ADD DEPARTMENT MODAL
-          ================================= */}
-
-          {showModal && (
-
-            <div
-              className="department-modal-overlay"
-              onClick={() => setShowModal(false)}
-            >
-
-              <div
-                className="department-modal"
-                onClick={(e) => e.stopPropagation()}
-              >
-
-                <div className="modal-header">
-
-                  <div>
-                    <h3>
-                      Add Department
-                    </h3>
-
-                    <p>
-                      Create a new support department.
-                    </p>
+                  <div className="col-md-1">
+                    <button type="submit" className="btn btn-success w-100">Add</button>
                   </div>
-
-                  <button
-                    className="modal-close"
-                    onClick={() => setShowModal(false)}
-                  >
-                    ×
-                  </button>
-
-                </div>
-
-
-                <form onSubmit={handleAddDepartment}>
-
-                  <div className="modal-body">
-
-                    <label>
-                      Department Name
-                    </label>
-
-                    <input
-                      type="text"
-                      placeholder="Example: Library"
-                      value={newDepartment}
-                      onChange={(e) =>
-                        setNewDepartment(e.target.value)
-                      }
-                      autoFocus
-                    />
-
-                  </div>
-
-
-                  <div className="modal-footer">
-
-                    <button
-                      type="button"
-                      className="cancel-btn"
-                      onClick={() => setShowModal(false)}
-                    >
-                      Cancel
-                    </button>
-
-                    <button
-                      type="submit"
-                      className="save-department-btn"
-                    >
-                      Add Department
-                    </button>
-
-                  </div>
-
                 </form>
-
               </div>
-
             </div>
-
           )}
 
+          {loading ? (
+            <div className="text-center py-5">Loading departments...</div>
+          ) : error ? (
+            <div className="text-danger p-4">{error}</div>
+          ) : (
+            <div className="row mt-4">
+              {departments.map((dept, index) => (
+                <div className="col-md-4 col-lg-3 mb-4" key={index}>
+                  <div className="card shadow-sm h-100">
+                    <div className="card-body text-center">
+                      <div className="fs-1 mb-3">🏢</div>
+                      <h5 className="card-title">{dept.name}</h5>
+                      <p className="text-muted small mb-0">{dept.description || "No description"}</p>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
         </main>
-
       </div>
     </>
   );

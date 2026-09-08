@@ -12,7 +12,7 @@ from .schemas import TicketPrediction, CATEGORY_TO_DEPT, CATEGORY_TO_PRIORITY
 
 logger = logging.getLogger(__name__)
 
-ARTIFACTS_DIR = Path(__file__).parent.parent.parent.parent / "ml" / "artifacts"
+ARTIFACTS_DIR = Path(__file__).parent.parent.parent / "ml" / "artifacts"
 MODEL_PATH = ARTIFACTS_DIR / "model.pkl"
 META_PATH = ARTIFACTS_DIR / "metadata.json"
 

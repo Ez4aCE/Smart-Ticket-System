@@ -22,3 +22,11 @@ class StaffResponse(BaseModel):
     email: str
 
     model_config = {"from_attributes": True}
+
+class StaffCreate(BaseModel):
+    full_name: str
+    email: str
+    password: str
+    department_id: UUID
+    employee_code: str
+

@@ -1,13 +1,15 @@
 from datetime import datetime, timezone
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
+from pydantic import BaseModel
 from uuid import UUID
 from typing import List
 
 from ...database.session import get_db
 from ...database.models import User, StaffProfile, Ticket
-from ...core.dependencies import get_current_user, require_staff_or_admin
+from ...core.dependencies import get_current_user, require_staff_or_admin, require_admin
 from ...schemas.ticket import (
+    TicketUpdate,
     TicketCreate, TicketResponse, TicketDetailResponse,
     TicketStatusUpdate, TicketReopenRequest, ReassignRequest,
     CommentCreate, CommentResponse,
@@ -84,6 +86,39 @@ def get_ticket(
     return {**ticket_dict, "comments": comments, "status_history": status_history, "current_assignment": assignment_data}
 
 
+@router.patch("/{ticket_id}", response_model=TicketResponse)
+def update_ticket_info(
+    ticket_id: UUID,
+    body: TicketUpdate,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(require_staff_or_admin),
+):
+    ticket = ticket_service.get_ticket(db, ticket_id)
+    if not ticket:
+        raise HTTPException(status_code=404, detail="Ticket not found")
+    
+    if body.title is not None: ticket.title = body.title
+    if body.description is not None: ticket.description = body.description
+    if body.priority is not None: ticket.priority = body.priority
+    if body.status is not None:
+        try:
+            ticket_service.transition_status(db, ticket, body.status, current_user.id, "Admin updated ticket")
+        except ValueError as e:
+            raise HTTPException(status_code=409, detail=str(e))
+            
+    # Resolve category/department by string name if provided
+    from ...database.models import Category, Department
+    if body.category is not None:
+        cat = db.query(Category).filter(Category.name.ilike(body.category)).first()
+        if cat: ticket.category_id = cat.id
+    if body.department is not None:
+        dept = db.query(Department).filter(Department.name.ilike(body.department)).first()
+        if dept: ticket.department_id = dept.id
+        
+    db.commit()
+    db.refresh(ticket)
+    return ticket
+
 @router.patch("/{ticket_id}/status", response_model=TicketResponse)
 def update_status(
     ticket_id: UUID,
@@ -143,6 +178,43 @@ def add_comment(
     }
 
 
+class TriageRequest(BaseModel):
+    department_id: UUID
+    reason: str = "Manually triaged by admin"
+
+@router.post("/{ticket_id}/triage", response_model=TicketResponse)
+def triage_ticket(
+    ticket_id: UUID,
+    body: TriageRequest,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(require_admin),
+):
+    from ...database.models import Department
+    from ...routing.service import route_ticket
+    
+    ticket = ticket_service.get_ticket(db, ticket_id)
+    if not ticket:
+        raise HTTPException(status_code=404, detail="Ticket not found")
+        
+    dept = db.query(Department).filter(Department.id == body.department_id).first()
+    if not dept:
+        raise HTTPException(status_code=404, detail="Department not found")
+        
+    # Reset status to NEW so routing algorithm can process it
+    ticket.department_id = dept.id
+    ticket.status = "NEW"
+    db.commit()
+    
+    # Run the auto-routing logic
+    try:
+        route_ticket(db, ticket.id)
+    except Exception as e:
+        raise HTTPException(status_code=400, detail=f"Routing failed: {e}")
+        
+    db.refresh(ticket)
+    return ticket
+
+
 @router.post("/{ticket_id}/reassign", response_model=TicketResponse)
 def reassign_ticket(
     ticket_id: UUID,
@@ -167,3 +239,4 @@ def reassign_ticket(
     db.commit()
     db.refresh(ticket)
     return ticket
+

@@ -1,3 +1,5 @@
+from ..ai.service import AIService
+from ..routing.service import route_ticket
 import uuid
 from datetime import datetime, timezone
 from typing import Optional, List, Dict, Any
@@ -16,9 +18,9 @@ VALID_STATUSES = {
 VALID_TRANSITIONS: Dict[str, set] = {
     "NEW": {"AI_ANALYZED", "MANUAL_TRIAGE"},
     "AI_ANALYZED": {"ASSIGNED", "MANUAL_TRIAGE"},
-    "MANUAL_TRIAGE": {"ASSIGNED"},
-    "ASSIGNED": {"IN_PROGRESS", "MANUAL_TRIAGE"},
-    "IN_PROGRESS": {"RESOLVED", "MANUAL_TRIAGE"},
+    "MANUAL_TRIAGE": {"ASSIGNED", "IN_PROGRESS", "RESOLVED", "CLOSED"},
+    "ASSIGNED": {"IN_PROGRESS", "MANUAL_TRIAGE", "RESOLVED", "CLOSED"},
+    "IN_PROGRESS": {"RESOLVED", "MANUAL_TRIAGE", "CLOSED"},
     "RESOLVED": {"CLOSED", "REOPENED"},
     "CLOSED": {"REOPENED"},
     "REOPENED": {"ASSIGNED", "IN_PROGRESS"},
@@ -32,23 +34,48 @@ def _now() -> datetime:
 
 
 def generate_ticket_number(db: Session) -> str:
-    prefix = f"TKT-{_now().strftime('%Y%m%d')}"
-    count = db.query(Ticket).filter(Ticket.ticket_number.like(f"{prefix}%")).count()
-    return f"{prefix}-{count + 1:04d}"
+    now = datetime.now(timezone.utc)
+    date_str = now.strftime("%Y%m%d")
+    count = db.query(Ticket).filter(Ticket.ticket_number.like(f"TKT-{date_str}-%")).count()
+    return f"TKT-{date_str}-{count + 1:04d}"
 
 
 def create_ticket(db: Session, student_id: uuid.UUID, title: str, description: str) -> Ticket:
+    CONFIDENCE_THRESHOLD = 0.75
     ticket_number = generate_ticket_number(db)
+    
+    # 1. Run AI analysis
+    ai_service = AIService()
+    prediction = ai_service.analyze_ticket(title, description)
+    
+    # 2. Look up department and category by name (the AI returns string names)
+    dept = db.query(Department).filter(Department.name.ilike(prediction.department)).first()
+    cat = db.query(Category).filter(Category.name.ilike(prediction.category)).first()
+
+    # 3. Decide initial status based on confidence
+    confidence = float(prediction.confidence) if prediction.confidence else 0.0
+    if confidence < CONFIDENCE_THRESHOLD:
+        initial_status = "MANUAL_TRIAGE"
+        triage_reason = f"AI confidence ({confidence:.0%}) below threshold ({CONFIDENCE_THRESHOLD:.0%}). Requires manual review."
+    else:
+        initial_status = "NEW"
+        triage_reason = None
+
     ticket = Ticket(
         ticket_number=ticket_number,
         student_id=student_id,
         title=title,
         description=description,
-        status="NEW",
+        status=initial_status,
+        priority=prediction.priority,
+        ai_confidence=prediction.confidence,
+        department_id=dept.id if dept else None,
+        category_id=cat.id if cat else None,
     )
     db.add(ticket)
     db.flush()
 
+    # Record initial status
     history = TicketStatusHistory(
         ticket_id=ticket.id,
         old_status=None,
@@ -56,8 +83,28 @@ def create_ticket(db: Session, student_id: uuid.UUID, title: str, description: s
         reason="Ticket submitted by student.",
     )
     db.add(history)
+
+    # If low confidence, record the triage transition
+    if initial_status == "MANUAL_TRIAGE":
+        triage_history = TicketStatusHistory(
+            ticket_id=ticket.id,
+            old_status="NEW",
+            new_status="MANUAL_TRIAGE",
+            reason=triage_reason,
+        )
+        db.add(triage_history)
+
     db.commit()
     db.refresh(ticket)
+    
+    # 4. Only auto-route if confidence is high enough
+    if initial_status == "NEW":
+        try:
+            route_ticket(db, ticket.id)
+        except Exception as e:
+            print(f"Routing failed: {e}")
+        db.refresh(ticket)
+    
     return ticket
 
 
@@ -304,3 +351,4 @@ def apply_ai_prediction(
     prediction.is_accepted = True
     db.commit()
     return new_status
+

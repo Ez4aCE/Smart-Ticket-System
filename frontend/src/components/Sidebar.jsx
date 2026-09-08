@@ -1,6 +1,11 @@
 import { NavLink } from "react-router-dom";
 
 function Sidebar({ role = "student" }) {
+  // Get real user info from localStorage
+  const storedUser = (() => {
+    try { return JSON.parse(localStorage.getItem("user")); } catch { return null; }
+  })();
+
   const menuItems = {
     student: [
       {
@@ -209,7 +214,7 @@ function Sidebar({ role = "student" }) {
             </strong>
 
             <p>
-              8 tickets require attention
+              Manage your tickets
             </p>
 
           </div>
@@ -255,17 +260,17 @@ function Sidebar({ role = "student" }) {
       <div className="sidebar-user">
 
         <div className="user-avatar">
-          {details.userLetter}
+          {storedUser?.full_name?.[0] || details.userLetter}
         </div>
 
         <div className="user-info">
 
           <strong>
-            {details.userName}
+            {storedUser?.full_name || details.userName}
           </strong>
 
           <span>
-            {details.userSubtitle}
+            {storedUser?.email || details.userSubtitle}
           </span>
 
         </div>

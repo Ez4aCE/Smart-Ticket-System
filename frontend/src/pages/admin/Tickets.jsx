@@ -1,10 +1,10 @@
-import { useMemo, useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
+import { useState, useEffect, useMemo } from "react";
 import Navbar from "../../components/Navbar";
 import Sidebar from "../../components/Sidebar";
 import { getTickets } from "../../services/api";
 
-function MyTickets() {
+function AdminTickets() {
   const navigate = useNavigate();
 
   const [search, setSearch] = useState("");
@@ -29,7 +29,7 @@ function MyTickets() {
   const filteredTickets = useMemo(() => {
     return tickets.filter((ticket) => {
       const matchesSearch =
-        (ticket.ticket_number || ticket.id || "")
+        (ticket.ticket_number || "")
           .toLowerCase()
           .includes(search.toLowerCase()) ||
         (ticket.title || "")
@@ -46,15 +46,15 @@ function MyTickets() {
 
   return (
     <>
-      <Navbar />
+      <Navbar role="admin" />
       <div className="dashboard-layout">
-        <Sidebar role="student" />
+        <Sidebar role="admin" />
         <main className="content">
           <div className="d-flex justify-content-between align-items-center mb-4">
-            <h2>My Tickets</h2>
-            <button className="btn btn-primary" onClick={() => navigate("/student/create-ticket")}>
-              + Raise New Ticket
-            </button>
+            <div>
+              <p className="page-label text-muted small text-uppercase mb-1">ADMINISTRATION</p>
+              <h2>All Tickets</h2>
+            </div>
           </div>
 
           <div className="card shadow-sm mb-4">
@@ -101,13 +101,17 @@ function MyTickets() {
                       <th>Title</th>
                       <th>Priority</th>
                       <th>Status</th>
+                      <th>AI Confidence</th>
                       <th>Created</th>
-                      <th>Action</th>
                     </tr>
                   </thead>
                   <tbody>
                     {filteredTickets.map((ticket) => (
-                      <tr key={ticket.id} onClick={() => navigate(`/student/tickets/${ticket.id}`)} style={{cursor: 'pointer'}}>
+                      <tr 
+                        key={ticket.id} 
+                        style={{cursor: 'pointer'}} 
+                        onClick={() => navigate(`/admin/tickets/${ticket.id}`)}
+                      >
                         <td><strong>{ticket.ticket_number}</strong></td>
                         <td>{ticket.title}</td>
                         <td>
@@ -120,12 +124,8 @@ function MyTickets() {
                             {ticket.status}
                           </span>
                         </td>
+                        <td>{ticket.ai_confidence ? Math.round(ticket.ai_confidence * 100) + '%' : 'N/A'}</td>
                         <td>{new Date(ticket.created_at).toLocaleDateString()}</td>
-                        <td>
-                          <button className="btn btn-sm btn-outline-primary" onClick={(e) => { e.stopPropagation(); navigate(`/student/tickets/${ticket.id}`); }}>
-                            View
-                          </button>
-                        </td>
                       </tr>
                     ))}
                   </tbody>
@@ -139,4 +139,4 @@ function MyTickets() {
   );
 }
 
-export default MyTickets;
+export default AdminTickets;

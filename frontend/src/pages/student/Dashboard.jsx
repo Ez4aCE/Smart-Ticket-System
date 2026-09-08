@@ -1,39 +1,29 @@
 import { useNavigate } from "react-router-dom";
+import { useState, useEffect } from "react";
 import Navbar from "../../components/Navbar";
 import Sidebar from "../../components/Sidebar";
+import { getTickets } from "../../services/api";
 
 function Dashboard() {
   const navigate = useNavigate();
+  const [allTickets, setAllTickets] = useState([]);
+  const [loading, setLoading] = useState(true);
 
-  const recentTickets = [
-    {
-      id: "TKT-1024",
-      title: "Semester fee payment not reflected",
-      category: "Fees",
-      department: "Finance",
-      priority: "High",
-      status: "In Progress",
-      date: "Today",
-    },
-    {
-      id: "TKT-1023",
-      title: "Unable to connect to college Wi-Fi",
-      category: "IT Support",
-      department: "IT Support",
-      priority: "Medium",
-      status: "Resolved",
-      date: "Yesterday",
-    },
-    {
-      id: "TKT-1022",
-      title: "Hostel room maintenance request",
-      category: "Hostel",
-      department: "Hostel Office",
-      priority: "Medium",
-      status: "Assigned",
-      date: "Sep 4",
-    },
-  ];
+  useEffect(() => {
+    const fetchTickets = async () => {
+      try {
+        const data = await getTickets();
+        setAllTickets(data);
+      } catch (err) {
+        console.error("Error fetching tickets", err);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchTickets();
+  }, []);
+
+  const recentTickets = allTickets.slice(0, 5);
 
   return (
     <>
@@ -57,7 +47,7 @@ function Dashboard() {
               </p>
 
               <h1>
-                Welcome back! 👋
+                Welcome back! 👋👋
               </h1>
 
               <p className="welcome-description">
@@ -78,108 +68,45 @@ function Dashboard() {
 
 
           {/* =====================================
-              STATISTICS
+              STATISTICS (computed from live data)
           ===================================== */}
 
           <div className="dashboard-stats">
 
             <div className="stat-card">
-
-              <div className="stat-icon blue">
-                🎫
-              </div>
-
+              <div className="stat-icon blue">🎫</div>
               <div className="stat-content">
-
-                <span>
-                  Total Tickets
-                </span>
-
-                <h2>
-                  12
-                </h2>
-
-                <small>
-                  All your support requests
-                </small>
-
+                <span>Total Tickets</span>
+                <h2>{loading ? "..." : allTickets.length}</h2>
+                <small>All your support requests</small>
               </div>
-
             </div>
 
-
             <div className="stat-card">
-
-              <div className="stat-icon orange">
-                ⏳
-              </div>
-
+              <div className="stat-icon orange">⏳</div>
               <div className="stat-content">
-
-                <span>
-                  In Progress
-                </span>
-
-                <h2>
-                  3
-                </h2>
-
-                <small>
-                  Currently being handled
-                </small>
-
+                <span>In Progress</span>
+                <h2>{loading ? "..." : allTickets.filter(t => t.status === "IN_PROGRESS" || t.status === "ASSIGNED").length}</h2>
+                <small>Currently being handled</small>
               </div>
-
             </div>
 
-
             <div className="stat-card">
-
-              <div className="stat-icon green">
-                ✓
-              </div>
-
+              <div className="stat-icon green">✓</div>
               <div className="stat-content">
-
-                <span>
-                  Resolved
-                </span>
-
-                <h2>
-                  9
-                </h2>
-
-                <small>
-                  Successfully completed
-                </small>
-
+                <span>Resolved</span>
+                <h2>{loading ? "..." : allTickets.filter(t => t.status === "RESOLVED" || t.status === "CLOSED").length}</h2>
+                <small>Successfully completed</small>
               </div>
-
             </div>
 
-
             <div className="stat-card">
-
-              <div className="stat-icon purple">
-                ⚡
-              </div>
-
+              <div className="stat-icon purple">⚡</div>
               <div className="stat-content">
-
-                <span>
-                  Avg. Response
-                </span>
-
-                <h2>
-                  2.4h
-                </h2>
-
-                <small>
-                  Faster with AI routing
-                </small>
-
+                <span>New</span>
+                <h2>{loading ? "..." : allTickets.filter(t => t.status === "NEW").length}</h2>
+                <small>Awaiting assignment</small>
               </div>
-
             </div>
 
           </div>
@@ -225,8 +152,7 @@ function Dashboard() {
 
               <div className="tickets-list">
 
-                {recentTickets.map((ticket) => (
-
+                {loading ? <div className="p-4">Loading your tickets...</div> : recentTickets.length === 0 ? <div className="p-4">No recent tickets found.</div> : recentTickets.map((ticket) => (
                   <div
                     className="dashboard-ticket"
                     key={ticket.id}
@@ -236,45 +162,32 @@ function Dashboard() {
                       )
                     }
                   >
-
                     <div className="ticket-left">
-
                       <div className="ticket-number">
                         #
                       </div>
-
                       <div className="ticket-details">
-
                         <h4>
                           {ticket.title}
                         </h4>
-
                         <div className="ticket-meta">
-
                           <span>
-                            {ticket.id}
+                            {ticket.ticket_number || ticket.id}
                           </span>
-
                           <span className="dot">
                             •
                           </span>
-
                           <span>
-                            {ticket.category}
+                            {ticket.category || "General"}
                           </span>
-
                           <span className="dot">
                             •
                           </span>
-
                           <span>
-                            {ticket.date}
+                            {new Date(ticket.created_at).toLocaleDateString()}
                           </span>
-
                         </div>
-
                       </div>
-
                     </div>
 
 
@@ -282,15 +195,15 @@ function Dashboard() {
 
                       <span
                         className={`priority-badge ${
-                          ticket.priority.toLowerCase()
+                          (ticket.priority || "normal").toLowerCase()
                         }`}
                       >
-                        {ticket.priority}
+                        {ticket.priority || "NORMAL"}
                       </span>
 
                       <span
                         className={`status-badge ${
-                          ticket.status
+                          (ticket.status || "new")
                             .toLowerCase()
                             .replace(" ", "-")
                         }`}
